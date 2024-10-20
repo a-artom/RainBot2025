@@ -16,6 +16,8 @@ if __name__ == '__main__':
 
     ua = UserAgent()
 
+    CHECKER = True
+
     time_btns = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True)
     for btn in TIMES.keys():
         time_btns.add(btn)
@@ -25,7 +27,7 @@ if __name__ == '__main__':
 
 
 def schedule_checker():
-    while True:
+    while CHECKER:
         schedule.run_pending()
         sleep(60)
 
@@ -99,13 +101,21 @@ def send_weather(chat_id, city):
 
 
 if __name__ == '__main__':
-    now = datetime.datetime.now()
-    for user in users.keys():
-        send_time = datetime.datetime.strptime(users[user][1], TIME_FORMAT)
-        if now >= send_time:
-            users[user][1] = now.strftime(TIME_FORMAT)
-            send_weather(user, users[user][0])
-        else:
-            schedule.every().day.at(send_time.strftime("%H:%M")).do(send_weather, user, users[user][0])
-    Thread(target=schedule_checker).start()
-    bot.polling(none_stop=True, interval=0)
+    schedule_thread = Thread(target=schedule_checker)
+    while True:
+        now = datetime.datetime.now()
+        for user in users.keys():
+            send_time = datetime.datetime.strptime(users[user][1], TIME_FORMAT)
+            if now >= send_time:
+                users[user][1] = now.strftime(TIME_FORMAT)
+                send_weather(user, users[user][0])
+            else:
+                schedule.every().day.at(send_time.strftime("%H:%M")).do(send_weather, user, users[user][0])
+        schedule_thread.start()
+        try:
+            bot.polling(none_stop=True)
+        except requests.exceptions.ConnectionError as e:
+            CHECKER = False
+            schedule_thread.join()
+            print(e)
+            CHECKER = True
