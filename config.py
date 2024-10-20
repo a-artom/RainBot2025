@@ -1,9 +1,9 @@
-OPENWEATHER_API_KEY = "71a75465055c194d46cff17f5b27fcec"
-BOT_TOKEN = "7532228632:AAEV0cCWMp_s3MUWhakz4wmFM3C9ULgFH1U"
+OPENWEATHER_API_KEY = <ow_api_key>
+BOT_TOKEN = <tg_bot_toket>
 
 API_REQUEST = "https://api.openweathermap.org/data/2.5/weather"
 
-ADMIN_ID = 1547522323
+ADMIN_ID = <admin_id>
 
 TIMES = {
     "1 минута": 1,
