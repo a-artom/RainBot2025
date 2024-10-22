@@ -1,3 +1,5 @@
+import time
+
 import telebot
 import requests
 import schedule
@@ -16,8 +18,6 @@ if __name__ == '__main__':
 
     ua = UserAgent()
 
-    CHECKER = True
-
     time_btns = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True)
     for btn in TIMES.keys():
         time_btns.add(btn)
@@ -27,9 +27,30 @@ if __name__ == '__main__':
 
 
 def schedule_checker():
-    while CHECKER:
-        schedule.run_pending()
-        sleep(60)
+    while True:
+        try:
+            schedule.run_pending()
+            sleep(30)
+            print(schedule.get_jobs())
+        except Exception as e:
+            print(f" ========================================== {e}")
+
+
+def check_schedules():
+    now = datetime.datetime.now()
+
+    if schedule.get_jobs():
+        for job in schedule.get_jobs():
+            schedule.cancel_job(job)
+
+    for user in users.keys():
+        send_time = datetime.datetime.strptime(users[user][1], TIME_FORMAT)
+
+        if now >= send_time:
+            users[user][1] = now.strftime(TIME_FORMAT)
+            send_weather(user, users[user][0])
+        else:
+            schedule.every().day.at(send_time.strftime("%H:%M")).do(send_weather, user, users[user][0])
 
 
 @bot.message_handler(commands=["start"])
@@ -99,23 +120,18 @@ def send_weather(chat_id, city):
 
         time_work(chat_id)
 
+    return schedule.CancelJob
+
 
 if __name__ == '__main__':
     schedule_thread = Thread(target=schedule_checker)
+    check_schedules()
+    schedule_thread.start()
+
     while True:
-        now = datetime.datetime.now()
-        for user in users.keys():
-            send_time = datetime.datetime.strptime(users[user][1], TIME_FORMAT)
-            if now >= send_time:
-                users[user][1] = now.strftime(TIME_FORMAT)
-                send_weather(user, users[user][0])
-            else:
-                schedule.every().day.at(send_time.strftime("%H:%M")).do(send_weather, user, users[user][0])
-        schedule_thread.start()
         try:
-            bot.polling(none_stop=True)
+            bot.infinity_polling()
         except requests.exceptions.ConnectionError as e:
-            CHECKER = False
-            schedule_thread.join()
             print(e)
-            CHECKER = True
+            sleep(5)
+            check_schedules()
