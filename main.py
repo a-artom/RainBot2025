@@ -1,5 +1,3 @@
-import time
-
 import telebot
 import requests
 import schedule
@@ -31,9 +29,8 @@ def schedule_checker():
         try:
             schedule.run_pending()
             sleep(30)
-            print(schedule.get_jobs())
         except Exception as e:
-            print(f" ========================================== {e}")
+            print(e)
 
 
 def check_schedules():
