@@ -87,7 +87,7 @@ def ask_time(message, city):
         send_weather(message.chat.id, city)
     else:
         msg = bot.send_message(message.chat.id, msgs.TIME_IDK)
-        bot.register_next_step_handler(msg, ask_time)
+        bot.register_next_step_handler(msg, ask_time, city=city)
 
 
 def time_work(chat_id):
@@ -110,10 +110,9 @@ def send_weather(chat_id, city):
         humidity = weather_data["main"]["humidity"]
         pressure = weather_data["main"]["pressure"]
         speed = weather_data["wind"]["speed"]
-        napr = WIND_DIR[weather_data["wind"]["deg"]//45*45]
 
         bot.send_message(chat_id, msgs.WEATHER_SEND.format(city=city, temp=temp, desc=desc, humidity=humidity,
-                                                           pressure=pressure, speed=speed, napr=napr))
+                                                           pressure=pressure, speed=speed))
 
         time_work(chat_id)
 

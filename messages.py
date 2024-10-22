@@ -16,4 +16,4 @@ WEATHER_SEND = "Погода {city}:\n" \
                 "Температура: {temp}\U000000B0С, {desc}\n" \
                 "Давление: {pressure} мм рт. ст.\n" \
                 "Влажность: {humidity}%\n" \
-                "Ветер: {speed} м/c, {napr}"
+                "Ветер: {speed} м/c"
