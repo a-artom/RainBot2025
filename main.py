@@ -124,10 +124,4 @@ if __name__ == '__main__':
     check_schedules()
     schedule_thread.start()
 
-    while True:
-        try:
-            bot.infinity_polling()
-        except requests.exceptions.ConnectionError as e:
-            print(e)
-            sleep(5)
-            check_schedules()
+    bot.infinity_polling()
